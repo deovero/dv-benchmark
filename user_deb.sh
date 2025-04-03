@@ -45,7 +45,7 @@ install_package() {
         if [[ -n "$DEPENDS" ]]; then
             install_package "${DEPENDS}"
         fi
-    done < <(apt-get -s install "$PACKAGE" | grep -P '^Inst' | grep -Fv "Inst ${PACKAGE} " | awk '{ print $2 }' )
+    done < <(apt-get -s install "$PACKAGE" | grep -P '^Inst' | grep -Fv "Inst ${PACKAGE} " | awk '{ print $2 }' | sort -u )
 
     # Extract the filename from the package information
     local filename
