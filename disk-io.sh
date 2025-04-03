@@ -79,8 +79,11 @@ run_fio_test() {
         --output-format=json | tee "${rw_type}_results.json" | jq -r "${metric_path} | round | \"\(.) MiB/s\""
 }
 
+# List block devices
+lsblk -o NAME,FSTYPE,MOUNTPOINT,SIZE,MODEL
+
 # Run sequential write test
-run_fio_test "write" '.jobs[0].write.bw/1024' "Sequential Write"
+# run_fio_test "write" '.jobs[0].write.bw/1024' "Sequential Write"
 
 # Run random read test
 run_fio_test "randread" '.jobs[0].read.bw/1024' 'Random Read'
