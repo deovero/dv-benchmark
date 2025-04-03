@@ -57,6 +57,7 @@ fi
 run_fio_test() {
     local rw_type="$1"
     local metric_path="$2"
+    local show_name="$3"
 
     echo "Running $rw_type test..."
     # --- FIO Command ---
@@ -76,26 +77,24 @@ run_fio_test() {
         --norandommap \
         --randrepeat=0 \
         --time_based \
-        --output-format=json | tee "${rw_type}_results.json" | jq -r "${metric_path} | \"${rw_type} \(.) MiB/s\""
+        --output-format=json | tee "${rw_type}_results.json" | jq -r "${metric_path} | \"${show_name} \(.) MiB/s\""
 }
 
 # Run sequential write test
-run_fio_test "write" '.jobs[0].write.bw/1024'
+run_fio_test "write" '.jobs[0].write.bw/1024' "Sequential Write"
 
 # Run random read test
-run_fio_test "randread" '.jobs[0].read.bw/1024'
+run_fio_test "randread" '.jobs[0].read.bw/1024' 'Random Read'
 
 # Run random write test
-run_fio_test "randwrite" '.jobs[0].write.bw/1024'
+run_fio_test "randwrite" '.jobs[0].write.bw/1024' 'Random Write'
 
 # Run sequential read test
 #run_fio_test "seqread_large" "read" '.jobs[0].read.bw/1024'
 
-# Generate summary
-echo "Sequential Write: $(jq -r '.jobs[0].write.bw/1024' write_results.json) MiB/s"
-#echo "Sequential Read: $(jq -r '.jobs[0].read.bw/1024' read_results.json) MiB/s"
-echo "Random Read: $(jq -r '.jobs[0].read.bw/1024' randread_results.json) MiB/s"
-echo "Random Write: $(jq -r '.jobs[0].write.bw/1024' randwrite_results.json) MiB/s"
-
 # --- Cleanup ---
 rm -f "$TEST_FILE" ./*_results.json # Remove the large test file afterwards
+
+# Finish
+echo "Done."
+exit 0
