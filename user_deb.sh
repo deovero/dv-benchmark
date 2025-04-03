@@ -61,7 +61,7 @@ install_package() {
     local download_url
     case "${DISTRIB_ID}" in
         "Ubuntu")
-            download_url="http://archive.ubuntu.com/ubuntu/$filename"
+            download_url="http://ports.ubuntu.com/ubuntu/$filename"
             ;;
         "Debian")
             download_url="http://ftp.debian.org/debian/$filename"
