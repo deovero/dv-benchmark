@@ -15,6 +15,11 @@ WORKDIR="${SCRIPT_DIR}/tmp"
 mkdir -p "${WORKDIR}"
 cd "${WORKDIR}"
 
+if [ ! -f "${WORKDIR}/installed.date" ]; then
+    echo "Calling install.sh..."
+    "${SCRIPT_DIR}/install.sh"
+fi
+
 export LD_LIBRARY_PATH="${WORKDIR}/usr/lib/x86_64-linux-gnu:${WORKDIR}/usr/lib/x86_64-linux-gnu/ceph"
 export PATH="${WORKDIR}/usr/bin:${WORKDIR}/usr/local/bin:/usr/local/bin:/usr/bin:/bin"
 
