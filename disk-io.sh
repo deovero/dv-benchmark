@@ -19,19 +19,19 @@ export LD_LIBRARY_PATH="${WORKDIR}/usr/lib/x86_64-linux-gnu:${WORKDIR}/usr/lib/x
 export PATH="${WORKDIR}/usr/bin:${WORKDIR}/usr/local/bin:/usr/local/bin:/usr/bin:/bin"
 
 # --- Configuration ---
-# Set TEST_FILE path on the RAID volume
+# Set test file path
 TEST_FILE="${TEST_FILE:-${WORKDIR}/fio-test.dat}"
-# Set SIZE significantly larger than controller cache (e.g., 10G, 50G)
-# Ensure you have enough free space!
+# Set test file size
 FILE_SIZE="${FILE_SIZE:-20G}"
-# Set BLOCK_SIZE (4k is common for random IO)
+# Set block size (4k is common for random IO)
 BLOCK_SIZE="${BLOCK_SIZE:-4k}"
-# Set RUN_TIME (e.g., 120 seconds)
-RUN_TIME="${RUN_TIME:-120}"
-# Set NUM_JOBS (e.g., 4 or 8 to simulate multiple threads)
+# Set run time in seconds
+RUN_TIME="${RUN_TIME:-60}"
+# Set number of jobs (e.g., 4 or 8 to simulate multiple threads)
 NUM_JOBS="${NUM_JOBS:-4}"
-# Set IODEPTH (queue depth per job, e.g., 16 or 32)
+# Set queue depth per job, e.g., 16 or 32
 IODEPTH="${IODEPTH:-16}"
+# -------------------
 
 # Print test parameters
 echo "Test Parameters:"
