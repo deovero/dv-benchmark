@@ -4,7 +4,7 @@
 #
 
 # Set shell options
-set -o xtrace -o errexit -o nounset -o pipefail +o history
+set +o xtrace -o errexit -o nounset -o pipefail +o history
 IFS=$'\n'
 
 # Get script directory
