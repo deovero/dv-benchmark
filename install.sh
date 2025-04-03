@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -o xtrace -o errexit -o nounset -o pipefail +o history
+set +o xtrace -o errexit -o nounset -o pipefail +o history
 IFS=$'\n'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -7,7 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PACKAGES=( iozone3 fio sysbench jq )
 
 if [[ 0 == "$UID" ]]; then
-  # we are root
+  echo "You are root, using apt-get."
   apt-get -y install "${PACKAGES[@]}"
 else
   echo "You are not root, using user_deb.sh."
