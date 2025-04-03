@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 set -o xtrace -o errexit -o nounset -o pipefail +o history
 IFS=$'\n'
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Required packages
+PACKAGES=( iozone3 fio sysbench jq )
 
 if [[ 0 == "$UID" ]]; then
   # we are root
-  apt-get -y install iozone3 fio sysbench jq
+  apt-get -y install "${PACKAGES[@]}"
 else
-  echo "You are not root."
+  echo "You are not root, using user_deb.sh."
+  "${SCRIPT_DIR}/user_deb.sh" "${PACKAGES[@]}"
 fi
+
+echo "Installation done."

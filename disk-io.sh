@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
+#
+# Script to test disk IO performance using 'fio'
+#
+
+# Set shell options
 set -o xtrace -o errexit -o nounset -o pipefail +o history
 IFS=$'\n'
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WORKDIR="${SCRIPT_DIR}/tmp"
 
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Prepare working directory
+WORKDIR="${SCRIPT_DIR}/tmp"
 mkdir -p "${WORKDIR}"
 cd "${WORKDIR}"
 
@@ -12,57 +20,82 @@ export PATH="${WORKDIR}/usr/bin:${WORKDIR}/usr/local/bin:/usr/local/bin:/usr/bin
 
 # --- Configuration ---
 # Set TEST_FILE path on the RAID volume
-TEST_FILE="${WORKDIR}/fio-test.dat"
+TEST_FILE="${TEST_FILE:-${WORKDIR}/fio-test.dat}"
 # Set SIZE significantly larger than controller cache (e.g., 10G, 50G)
 # Ensure you have enough free space!
-FILE_SIZE=20G
+FILE_SIZE="${FILE_SIZE:-20G}"
 # Set BLOCK_SIZE (4k is common for random IO)
-BLOCK_SIZE=4k
+BLOCK_SIZE="${BLOCK_SIZE:-4k}"
 # Set RUN_TIME (e.g., 120 seconds)
-RUN_TIME=120
+RUN_TIME="${RUN_TIME:-120}"
 # Set NUM_JOBS (e.g., 4 or 8 to simulate multiple threads)
-NUM_JOBS=4
+NUM_JOBS="${NUM_JOBS:-4}"
 # Set IODEPTH (queue depth per job, e.g., 16 or 32)
-IODEPTH=16
+IODEPTH="${IODEPTH:-16}"
 
-# --- FIO Command ---
-fio \
-  --name=randread_large \
-  --filename=$TEST_FILE \
-  --size=$FILE_SIZE \
-  --filesize=$FILE_SIZE \
-  --rw=randread \
-  --bs=$BLOCK_SIZE \
-  --direct=1 \
-  --ioengine=libaio \
-  --iodepth=$IODEPTH \
-  --numjobs=$NUM_JOBS \
-  --runtime=$RUN_TIME \
-  --group_reporting \
-  --norandommap \
-  --randrepeat=0 \
-  --time_based \
-  --output-format=json | jq -r '.jobs[0].read.bw/1024 | "Random Read \(.) MiB/s"'
+# Print test parameters
+echo "Test Parameters:"
+echo "- File: $TEST_FILE"
+echo "- Size: $FILE_SIZE"
+echo "- Block Size: $BLOCK_SIZE"
+echo "- Runtime: $RUN_TIME seconds"
+echo "- Jobs: $NUM_JOBS"
+echo "- IO Depth: $IODEPTH"
+echo
 
-# --- FIO Command ---
-fio \
-  --name=randwrite_large \
-  --filename=$TEST_FILE \
-  --size=$FILE_SIZE \
-  --filesize=$FILE_SIZE \
-  --rw=randwrite \
-  --bs=$BLOCK_SIZE \
-  --direct=1 \
-  --ioengine=libaio \
-  --iodepth=$IODEPTH \
-  --numjobs=$NUM_JOBS \
-  --runtime=$RUN_TIME \
-  --group_reporting \
-  --norandommap \
-  --randrepeat=0 \
-  --time_based \
-  --output-format=json | jq -r '.jobs[0].write.bw/1024 | "Random Write \(.) MiB/s"'
-#  --output-format=normal # Or json for easier parsing
+# Check available space
+required_bytes=$(numfmt --from=iec "$FILE_SIZE")
+available_bytes=$(df -B1 --output=avail "${WORKDIR}" | tail -n1)
+if [ "$required_bytes" -gt "$available_bytes" ]; then
+    echo "Error: Not enough space available in ${WORKDIR}"
+    echo "Required: $(numfmt --to=iec "$required_bytes")"
+    echo "Available: $(numfmt --to=iec "$available_bytes")"
+    exit 1
+fi
+
+# Function to run FIO test
+run_fio_test() {
+    local rw_type="$1"
+    local metric_path="$2"
+
+    echo "Running $test_name test..."
+    # --- FIO Command ---
+    fio \
+        --name="$rw_type" \
+        --filename="$TEST_FILE" \
+        --size="$FILE_SIZE" \
+        --filesize="$FILE_SIZE" \
+        --rw="$rw_type" \
+        --bs="$BLOCK_SIZE" \
+        --direct=1 \
+        --ioengine=libaio \
+        --iodepth="$IODEPTH" \
+        --numjobs="$NUM_JOBS" \
+        --runtime="$RUN_TIME" \
+        --group_reporting \
+        --norandommap \
+        --randrepeat=0 \
+        --time_based \
+        --output-format=json | tee "${test_name}_results.json" | jq -r "${metric_path} | \"${test_name} \(.) MiB/s\""
+}
+
+# Run sequential write test
+run_fio_test "write" '.jobs[0].write.bw/1024'
+
+# Run random read test
+run_fio_test "randread" '.jobs[0].read.bw/1024'
+
+# Run random write test
+run_fio_test "randwrite" '.jobs[0].write.bw/1024'
+
+# Run sequential read test
+#run_fio_test "seqread_large" "read" '.jobs[0].read.bw/1024'
+
+# Generate summary
+echo "Sequential Write: $(jq -r '.jobs[0].write.bw/1024' write_results.json) MiB/s"
+#echo "Sequential Read: $(jq -r '.jobs[0].read.bw/1024' read_results.json) MiB/s"
+echo "Random Read: $(jq -r '.jobs[0].read.bw/1024' randread_results.json) MiB/s"
+echo "Random Write: $(jq -r '.jobs[0].write.bw/1024' randwrite_results.json) MiB/s"
 
 # --- Cleanup ---
-rm $TEST_FILE # Remove the large test file afterwards
+rm -f "$TEST_FILE" ./*_results.json # Remove the large test file afterwards
