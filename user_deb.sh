@@ -58,20 +58,9 @@ install_package() {
     fi
 
     # Construct the download URL
+    BASEURL=$(apt-cache policy "$PACKAGE" | grep 'http' | head -n1 | awk '{print $2}')
     local download_url
-    case "${DISTRIB_ID}" in
-        "Ubuntu")
-            #download_url="http://archive.ubuntu.com/ubuntu/$filename"
-            download_url="http://ports.ubuntu.com/$filename"
-            ;;
-        "Debian")
-            download_url="http://ftp.debian.org/debian/$filename"
-            ;;
-        *)
-            echo "Error: Unknown distribution '${DISTRIB_ID}'" >&2
-            return 1
-            ;;
-    esac
+    download_url="${BASEURL}/${filename}"
 
     echo "Installing '${PACKAGE}' from '${download_url}'..."
     
