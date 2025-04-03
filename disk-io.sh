@@ -59,8 +59,7 @@ run_fio_test() {
     local metric_path="$2"
     local show_name="$3"
 
-    echo "Running $rw_type test..."
-    # --- FIO Command ---
+    echo -n "$show_name: "
     fio \
         --name="$rw_type" \
         --filename="$TEST_FILE" \
@@ -77,7 +76,7 @@ run_fio_test() {
         --norandommap \
         --randrepeat=0 \
         --time_based \
-        --output-format=json | tee "${rw_type}_results.json" | jq -r "${metric_path} | \"${show_name} \(.) MiB/s\""
+        --output-format=json | tee "${rw_type}_results.json" | jq -r "${metric_path} | round | \"\(.) MiB/s\""
 }
 
 # Run sequential write test
