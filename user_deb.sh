@@ -15,8 +15,8 @@ WORKDIR="${SCRIPT_DIR}/tmp"
 mkdir -p "${WORKDIR}"
 cd "${WORKDIR}"
 
-# Get distribution information, we are using $DISTRIB_ID
-source /etc/lsb-release
+# Get distribution id, 'Debian' or 'Ubuntu'
+DISTRIB_ID="$( lsb_release --id --short 2>/dev/null )"
 
 # Check if a package name is provided as an argument
 if [ $# -eq 0 ]; then
