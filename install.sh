@@ -4,7 +4,7 @@ IFS=$'\n'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Required packages
-PACKAGES=( fio sysbench jq )
+PACKAGES=( fio sysbench jq util-linux gawk )
 
 if [[ 0 == "$UID" ]]; then
   echo "You are root, using apt-get."
