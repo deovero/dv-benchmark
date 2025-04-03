@@ -33,6 +33,11 @@ NUM_JOBS="${NUM_JOBS:-4}"
 IODEPTH="${IODEPTH:-16}"
 # -------------------
 
+# List block devices
+echo "Block Devices:"
+lsblk -o NAME,FSTYPE,MOUNTPOINT,SIZE,MODEL
+echo
+
 # Print test parameters
 echo "Test Parameters:"
 echo "- File: $TEST_FILE"
@@ -55,9 +60,9 @@ fi
 
 # Function to run FIO test
 run_fio_test() {
-    local rw_type="$1"
-    local metric_path="$2"
-    local show_name="$3"
+    local show_name="$1"
+    local rw_type="$2"
+    local metric_path="$3"
 
     echo -n "$show_name: "
     fio \
@@ -79,22 +84,13 @@ run_fio_test() {
         --output-format=json | tee "${rw_type}_results.json" | jq -r "${metric_path} | round | \"\(.) MiB/s\""
 }
 
-# List block devices
-lsblk -o NAME,FSTYPE,MOUNTPOINT,SIZE,MODEL
+# Run tests
+run_fio_test  'Sequential Write'  'write'      '.jobs[0].write.bw/1024'
+#run_fio_test  'Sequential Read'   'read'       '.jobs[0].read.bw/1024'
+run_fio_test  'Random Read'       'randread'   '.jobs[0].read.bw/1024'
+run_fio_test  'Random Write'      'randwrite'  '.jobs[0].write.bw/1024'
 
-# Run sequential write test
-# run_fio_test "write" '.jobs[0].write.bw/1024' "Sequential Write"
-
-# Run random read test
-run_fio_test "randread" '.jobs[0].read.bw/1024' 'Random Read'
-
-# Run random write test
-run_fio_test "randwrite" '.jobs[0].write.bw/1024' 'Random Write'
-
-# Run sequential read test
-#run_fio_test "seqread_large" "read" '.jobs[0].read.bw/1024'
-
-# --- Cleanup ---
+# Cleanup
 rm -f "$TEST_FILE" ./*_results.json # Remove the large test file afterwards
 
 # Finish
