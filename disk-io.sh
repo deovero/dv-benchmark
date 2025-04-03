@@ -95,5 +95,6 @@ run_fio_test "randwrite" '.jobs[0].write.bw/1024' 'Random Write'
 rm -f "$TEST_FILE" ./*_results.json # Remove the large test file afterwards
 
 # Finish
+echo
 echo "Done."
 exit 0
