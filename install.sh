@@ -4,7 +4,7 @@ IFS=$'\n'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Required packages
-PACKAGES=( fio sysbench jq util-linux gawk )
+PACKAGES=( fio sysbench jq util-linux grep gawk )
 
 # Prepare working directory
 WORKDIR="${SCRIPT_DIR}/tmp"
