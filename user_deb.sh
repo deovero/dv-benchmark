@@ -112,12 +112,14 @@ install_package() {
 
     cp -a unpack/* .
     rm -rf unpack
-    if [[ "${do_download}" == true ]]; then
-        rm -f "${package_file}"
-    fi
+
     dependencies="$(
       apt-get -s install "$( readlink -f "${package_file}" )" | grep -P '^Inst' | grep -Fv "Inst ${package_name} " | awk '{ print $2 }'
     )"
+
+    if [[ "${do_download}" == true ]]; then
+        rm -f "${package_file}"
+    fi
 
     echo "${package_name}" >> installed.lst
     echo "Successfully installed '${package_name}'"
