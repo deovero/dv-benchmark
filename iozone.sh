@@ -15,7 +15,7 @@ WORKDIR="${SCRIPT_DIR}/tmp"
 mkdir -p "${WORKDIR}"
 cd "${WORKDIR}"
 
-echo "Calling install.sh..."
+echo "==== Installation ====="
 "${SCRIPT_DIR}/install.sh" iozone3 util-linux grep gawk
 
 export LD_LIBRARY_PATH="${WORKDIR}/usr/lib/x86_64-linux-gnu:${WORKDIR}/usr/lib/x86_64-linux-gnu/ceph:${WORKDIR}/lib/x86_64-linux-gnu"
@@ -32,13 +32,13 @@ BLOCK_SIZE="${BLOCK_SIZE:-4}"
 
 # List block devices
 echo
-echo "Block Devices:"
+echo "==== Block Devices ===="
 lsblk -o NAME,FSTYPE,MOUNTPOINT,SIZE,MODEL
 echo
 
 # Print test parameters
 echo
-echo "Test Parameters:"
+echo "==== Test Parameters ===="
 echo "- File: ${TEST_FILE}"
 echo "- Size: ${FILE_SIZE}"
 echo "- Block Size: ${BLOCK_SIZE}"

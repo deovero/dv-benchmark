@@ -48,7 +48,7 @@ echo "==== Test Parameters ===="
 echo "- File: $TEST_FILE"
 echo "- Size: $FILE_SIZE"
 echo "- Block Size: $BLOCK_SIZE"
-echo "- Runtime: $RUN_TIME seconds"
+echo "- Runtime: ${RUN_TIME} seconds"
 echo "- Jobs: $NUM_JOBS"
 echo "- IO Depth: $IODEPTH"
 
@@ -88,7 +88,7 @@ run_fio_test() {
           --time_based \
           --output-format=json | jq -r "${metric_path} | round | \"\(.) MiB/s\""
     )
-    printf "\033[0;33m%s: %s\033[0m\n" "$show_name" "${FIO_OUTPUT}"
+    printf "\033[0;33m%-17s: %s\033[0m\n" "$show_name:" "${FIO_OUTPUT}"
 }
 
 echo
