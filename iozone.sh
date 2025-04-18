@@ -31,21 +31,23 @@ BLOCK_SIZE="${BLOCK_SIZE:-4}"
 # -------------------
 
 # List block devices
+echo
 echo "Block Devices:"
 lsblk -o NAME,FSTYPE,MOUNTPOINT,SIZE,MODEL
 echo
 
 # Print test parameters
+echo
 echo "Test Parameters:"
 echo "- File: $TEST_FILE"
 echo "- Size: $FILE_SIZE"
 echo "- Block Size: $BLOCK_SIZE"
-echo
 
 # Check available space
 required_bytes=$(numfmt --from=iec "$FILE_SIZE")
 available_bytes=$(df -B1 --output=avail "${WORKDIR}" | tail -n1)
 if [ "$required_bytes" -gt "$available_bytes" ]; then
+    echo
     echo "Error: Not enough space available in ${WORKDIR}"
     echo "Required: $(numfmt --to=iec "$required_bytes")"
     echo "Available: $(numfmt --to=iec "$available_bytes")"
@@ -69,6 +71,7 @@ run_iozone_test() {
     SEQ_WRITE=$(echo -e "${IOZONE_RESULT}" | awk '{printf "%.2f", $3/(1024)}')
     RAND_READ=$(echo -e "${IOZONE_RESULT}" | awk '{printf "%.2f", $5/(1024)}')
     RAND_WRITE=$(echo -e "${IOZONE_RESULT}" | awk '{printf "%.2f", $6/(1024)}')
+    echo
     echo "Sequential Write: ${SEQ_WRITE} MiB/s"
     echo "Random Read:      ${RAND_READ} MiB/s"
     echo "Random Write:     ${RAND_WRITE} MiB/s"
