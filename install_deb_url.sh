@@ -40,6 +40,10 @@ if [[ 0 == "$UID" ]]; then
     }
 else
     echo "You are not root, using user_deb.sh."
+    wget -q "${URL}" -O tmp.deb || {
+        echo "Error: Failed to download package" >&2
+        exit 1
+    }
     "${SCRIPT_DIR}/user_deb.sh" "$(readlink -f ./tmp.deb)" || {
         echo "Error: user_deb.sh installation failed" >&2
         exit 1

@@ -25,19 +25,23 @@ if [ $# -eq 0 ]; then
 fi
 
 install_package() {
-    local PACKAGE="$1"
-    local package_name="${PACKAGE}"
-    local package_file="tmp.deb"
+    local package_file
+    local package_name
+    local do_download=true
 
     # Handle full path to .deb file
-    if [[ "${PACKAGE}" == /* ]]; then
-        package_file="${PACKAGE}"
+    if [[ "${1}" == *.deb ]]; then
+        package_file="${1}"
+        do_download=false
         if [[ ! -f "${package_file}" ]]; then
             echo "Error: File '${package_file}' not found" >&2
             return 1
         fi
         package_name=$(dpkg-deb -f "${package_file}" Package)
         echo "Installing '${package_name}' from '${package_file}'..."
+    else
+        package_file="tmp.deb"
+        package_name="${1}"
     fi
 
     # Check if already installed globally
@@ -53,10 +57,10 @@ install_package() {
         return 0
     fi
 
-    if [[ "${PACKAGE}" != /* ]]; then
+    if [[ "${do_download}" == true ]]; then
         # Extract the filename from the package information
         local filename
-        filename=$(apt-cache show "$PACKAGE" | grep "^Filename:" | head -n1 | awk '{print $2}')
+        filename=$(apt-cache show "${package_name}" | grep "^Filename:" | head -n1 | awk '{print $2}')
 
         # Check if filename was found
         if [ -z "$filename" ]; then
@@ -65,46 +69,50 @@ install_package() {
         fi
 
         # Construct the download URL
-        BASEURL=$(apt-cache policy "$PACKAGE" | grep 'http' | head -n1 | awk '{print $2}')
+        BASEURL=$(apt-cache policy "${package_name}" | grep 'http' | head -n1 | awk '{print $2}')
         local download_url
         download_url="${BASEURL}/${filename}"
 
-        echo "Installing '${PACKAGE}' from '${download_url}'..."
+        echo "Installing '${package_name}' from '${download_url}'..."
 
-        # Download and extract DEB
-        if ! wget -q "$download_url" -O "${package_file}"; then
-            echo "Error: Failed to download package '$PACKAGE'" >&2
+        # Download DEB
+        if ! wget -q "${download_url}" -O "${package_file}"; then
+            echo "Error: Failed to download package '${package_name}' from URL '${download_url}'" >&2
             return 1
         fi
     fi
 
+    # Extract DEB
     rm -rf unpack
     if ! dpkg -x "${package_file}" unpack; then
         echo "Error: Failed to extract package '$PACKAGE'" >&2
-        if [[ "${PACKAGE}" != /* ]]; then
-            rm -f tmp.deb
+        if [[ "${do_download}" == true ]]; then
+            rm -f "${package_file}"
         fi
         return 1
     fi
 
     cp -a unpack/* .
-    rm -rf unpack tmp.deb
+    rm -rf unpack
+    if [[ "${do_download}" == true ]]; then
+        rm -f "${package_file}"
+    fi
 
     echo "${package_name}" >> installed.lst
-    echo "Successfully installed '${PACKAGE}'"
+    echo "Successfully installed '${package_name}'"
 
     # Install dependencies
     while read -r DEPENDS; do
         if [[ -n "$DEPENDS" ]]; then
             install_package "${DEPENDS}"
         fi
-    done < <(apt-get -s install "$PACKAGE" | grep -P '^Inst' | grep -Fv "Inst ${PACKAGE} " | awk '{ print $2 }' )
+    done < <(apt-get -s install "$PACKAGE" | grep -P '^Inst' | grep -Fv "Inst ${package_name} " | awk '{ print $2 }' )
 }
 
 # Process each package
 for PACKAGE in "$@"; do
-    if ! install_package "$PACKAGE"; then
-        echo "Error: Failed to install package '$PACKAGE'" >&2
+    if ! install_package "${PACKAGE}"; then
+        echo "Error: Failed to install package '${PACKAGE}'" >&2
         exit 1
     fi
 done
