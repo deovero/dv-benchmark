@@ -66,8 +66,7 @@ run_iozone_test() {
         -t "${THREADS}" \
         -s "${FILE_SIZE}" \
         -r "${BLOCK_SIZE}" \
-        | tee /dev/tty \
-        | grep -P "^\s+\d+\s+${BLOCK_SIZE}\s+\d+\s+\d+\s+\d+\s+\d+"
+        | tee /dev/tty
     )
     regex='Children see throughput for\s*[0-9]+\s+initial writers\s*=\s*([0-9]+.*)$'
     RESULT=$(echo -e "${IOZONE_RESULT}" | grep -oP "${regex}" | tail -n1 | sed -nE "s/${regex}/\1/p")
