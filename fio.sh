@@ -93,7 +93,7 @@ run_fio_test() {
         return 1
     }
 
-    printf "\033[0;33m%-18s %s\033[0m\n" "$show_name:" "${result}"
+    printf "\033[0;33m%-22s %s\033[0m\n" "$show_name:" "${result}"
 }
 
 # Trap for cleanup
