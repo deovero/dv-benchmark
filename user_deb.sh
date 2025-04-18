@@ -81,14 +81,13 @@ install_package() {
 
             # Construct the download URL
             BASEURL=$(apt-cache policy "${package_name}" | grep 'http' | head -n1 | awk '{print $2}')
-            local download_url
-            download_url="${BASEURL}/${filename}"
+            package_url="${BASEURL}/${filename}"
         fi
-        echo "Installing '${package_name}' from '${download_url}'..."
+        echo "Installing '${package_name}' from '${package_url}'..."
 
         # Download DEB
-        if ! wget -q "${download_url}" -O "${package_file}"; then
-            echo "Error: Failed to download package '${package_name}' from URL '${download_url}'" >&2
+        if ! wget -q "${package_url}" -O "${package_file}"; then
+            echo "Error: Failed to download package '${package_name}' from URL '${package_url}'" >&2
             return 1
         fi
         if [[ -z "${package_name+x}" ]]; then
