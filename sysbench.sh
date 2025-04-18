@@ -55,13 +55,12 @@ run_sysbench_test() {
         run \
         --threads="${THREADS}" \
         --time="${TIME}" \
-        | tee /dev/tty \
-        | grep -P "per second"
+        | tee /dev/tty
     )
     echo
     RESULT=$(echo -e "${SYSBENCH_RESULT}" | grep -oP "${regex}" | tail -n1 | sed -nE "s/${regex}/\1/p")
     # Print result in yellow
-    printf "\033[0;33m%s: %s %s\033[0m\n" "${show_name}:" "${RESULT}" "${unit}"
+    printf "\033[0;33m%s: %s %s\033[0m\n" "${show_name}" "${RESULT}" "${unit}"
 }
 
 # Run tests
