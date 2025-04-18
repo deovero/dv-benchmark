@@ -101,9 +101,9 @@ trap 'rm -f "$TEST_FILE"' EXIT
 
 echo
 echo "==== Running Tests ===="
-run_fio_test  'Sequential Write'  'write'      '.jobs[0].write.bw/1024'
-run_fio_test  'Random Read'       'randread'   '.jobs[0].read.bw/1024'
-run_fio_test  'Random Write'      'randwrite'  '.jobs[0].write.bw/1024'
+run_fio_test  'fio Sequential Write'  'write'      '.jobs[0].write.bw/1024'
+run_fio_test  'fio Random Read'       'randread'   '.jobs[0].read.bw/1024'
+run_fio_test  'fio Random Write'      'randwrite'  '.jobs[0].write.bw/1024'
 
 echo
 echo "Done."

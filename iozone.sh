@@ -92,9 +92,9 @@ run_iozone_test() {
     local result_rand_write=$(extract_result "${IOZONE_RESULT}" "${regex_rand_write}")
 
     echo
-    printf "\033[0;33mSequential Write:  %s MiB/sec\033[0m\n" "$(kb_to_mib "${result_write}")"
-    printf "\033[0;33mRandom Read:       %s MiB/sec\033[0m\n" "$(kb_to_mib "${result_rand_read}")"
-    printf "\033[0;33mRandom Write:      %s MiB/sec\033[0m\n" "$(kb_to_mib "${result_rand_write}")"
+    printf "\033[0;33m%-25s %s MiB/sec\033[0m\n" "iozone Sequential Write:" "$(kb_to_mib "${result_write}")"
+    printf "\033[0;33m%-25s %s MiB/sec\033[0m\n" "iozone Random Read:" "$(kb_to_mib "${result_rand_read}")"
+    printf "\033[0;33m%-25s %s MiB/sec\033[0m\n" "iozone Random Write:" "$(kb_to_mib "${result_rand_write}")"
 }
 
 # Run tests
