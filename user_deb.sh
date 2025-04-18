@@ -24,6 +24,23 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
+check_installed() {
+    local package_name="$1"
+
+    # Check if already installed globally
+    if dpkg -s "${package_name}" >/dev/null 2>&1; then
+        return 0
+    fi
+
+    # Check if already installed locally
+    touch installed.lst
+    if grep -q "^${package_name}$" installed.lst; then
+        return 0
+    fi
+
+    return 1
+}
+
 install_package() {
     local package_file="tmp.deb"
     local package_name
@@ -46,14 +63,7 @@ install_package() {
         package_name="${1}"
     fi
 
-    # Check if already installed globally
-    if dpkg -s "${package_name}" >/dev/null 2>&1; then
-        return 0
-    fi
-
-    # Check if already installed locally
-    touch installed.lst
-    if grep -q "^${package_name}$" installed.lst; then
+    if [[ -n "${package_name+x}" ]] && check_installed "${package_name}"; then
         return 0
     fi
 
@@ -84,6 +94,10 @@ install_package() {
         if [[ -z "${package_name+x}" ]]; then
             package_name=$(dpkg-deb -f "${package_file}" Package)
         fi
+    fi
+
+    if check_installed "${package_name}"; then
+        return 0
     fi
 
     # Extract DEB
