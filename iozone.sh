@@ -16,7 +16,7 @@ mkdir -p "${WORKDIR}"
 cd "${WORKDIR}"
 
 echo "==== Installation ====="
-"${SCRIPT_DIR}/install.sh" iozone3 util-linux grep gawk
+"${SCRIPT_DIR}/install.sh" iozone3 util-linux grep gawk bc
 
 export LD_LIBRARY_PATH="${WORKDIR}/usr/lib/x86_64-linux-gnu:${WORKDIR}/usr/lib/x86_64-linux-gnu/ceph:${WORKDIR}/lib/x86_64-linux-gnu"
 export PATH="${WORKDIR}/usr/bin:${WORKDIR}/usr/local/bin:/usr/local/bin:/usr/bin:/bin"
@@ -70,13 +70,13 @@ run_iozone_test() {
     )
     regex='Children see throughput for\s*[0-9]+\s+initial writers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
     RESULT=$(echo -e "${IOZONE_RESULT}" | grep -oP "${regex}" | tail -n1 | sed -nE "s/${regex}/\1/p")
-    printf "\033[0;33mSequential Write:  %s kB/sec\033[0m\n" "${RESULT}"
+    printf "\033[0;33mSequential Write:  %s MiB/sec\033[0m\n" "$(echo "${RESULT}/1024" | bc -l)"
     regex='Children see throughput for\s*[0-9]+\s+random readers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
     RESULT=$(echo -e "${IOZONE_RESULT}" | grep -oP "${regex}" | tail -n1 | sed -nE "s/${regex}/\1/p")
-    printf "\033[0;33mRandom Write:      %s kB/sec\033[0m\n" "${RESULT}"
+    printf "\033[0;33mRandom Write:      %s MiB/sec\033[0m\n" "$(echo "${RESULT}/1024" | bc -l)"
     regex='Children see throughput for\s*[0-9]+\s+random writers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
     RESULT=$(echo -e "${IOZONE_RESULT}" | grep -oP "${regex}" | tail -n1 | sed -nE "s/${regex}/\1/p")
-    printf "\033[0;33mRandom Write:      %s kB/sec\033[0m\n" "${RESULT}"
+    printf "\033[0;33mRandom Write:      %s MiB/sec\033[0m\n" "$(echo "${RESULT}/1024" | bc -l)"
 }
 
 # Run tests
