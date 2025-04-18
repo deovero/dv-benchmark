@@ -88,7 +88,7 @@ run_fio_test() {
           --time_based \
           --output-format=json | jq -r "${metric_path} | round | \"\(.) MiB/s\""
     )
-    printf "\033[0;33m%-17s: %s\033[0m\n" "$show_name:" "${FIO_OUTPUT}"
+    printf "\033[0;33m%-17s %s\033[0m\n" "$show_name:" "${FIO_OUTPUT}"
 }
 
 echo

@@ -24,7 +24,7 @@ export PATH="${WORKDIR}/usr/bin:${WORKDIR}/usr/local/bin:/usr/local/bin:/usr/bin
 # --- Configuration ---
 # Set test file path
 THREADS="${THREADS:-4}"
-TIME="${TIME:-60}"
+RUN_TIME="${RUN_TIME:-60}"
 # -------------------
 
 echo
@@ -39,7 +39,7 @@ lsmem
 echo
 echo "==== Test Parameters ===="
 echo "- Threads: ${THREADS}"
-echo "- Time:    ${TIME} seconds"
+echo "- Time:    ${RUN_TIME} seconds"
 
 # Function to run FIO test
 run_sysbench_test() {
@@ -54,7 +54,7 @@ run_sysbench_test() {
         "${test_name}" \
         run \
         --threads="${THREADS}" \
-        --time="${TIME}" \
+        --time="${RUN_TIME}" \
         | tee /dev/tty
     )
     echo
