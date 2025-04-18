@@ -39,7 +39,7 @@ lsmem
 echo
 echo "Test Parameters:"
 echo "- Threads: ${THREADS}"
-echo "- Time:    ${DURATION} seconds"
+echo "- Time:    ${TIME} seconds"
 
 # Function to run FIO test
 run_sysbench_test() {
