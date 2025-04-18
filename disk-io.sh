@@ -17,7 +17,7 @@ cd "${WORKDIR}"
 
 if [ ! -f "${WORKDIR}/installed.date" ]; then
     echo "Calling install.sh..."
-    "${SCRIPT_DIR}/install.sh"
+    "${SCRIPT_DIR}/install.sh" fio sysbench jq util-linux grep gawk
 fi
 
 export LD_LIBRARY_PATH="${WORKDIR}/usr/lib/x86_64-linux-gnu:${WORKDIR}/usr/lib/x86_64-linux-gnu/ceph:${WORKDIR}/lib/x86_64-linux-gnu"
