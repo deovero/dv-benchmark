@@ -23,8 +23,8 @@ export LD_LIBRARY_PATH="${WORKDIR}/usr/lib/x86_64-linux-gnu:${WORKDIR}/usr/lib/x
 export PATH="${WORKDIR}/usr/bin:${WORKDIR}/usr/local/bin:/usr/local/bin:/usr/bin:/bin"
 
 # --- Configuration ---
-# Set test file size
-FILE_SIZE="${FILE_SIZE:-20G}"
+# Set test file size - is multiplied by number of threads
+FILE_SIZE="${FILE_SIZE:-5G}"
 # Set block size in Kbytes (4k is common for random IO)
 BLOCK_SIZE="${BLOCK_SIZE:-4}"
 # Set number of threads
@@ -45,7 +45,7 @@ echo "- Block Size: ${BLOCK_SIZE}"
 echo "- Threads: ${THREADS}"
 
 # Check available space
-required_bytes=$(numfmt --from=iec "$FILE_SIZE")
+required_bytes=$( echo "$(numfmt --from=iec "$FILE_SIZE")*${THREADS}" | bc )
 available_bytes=$(df -B1 --output=avail "${WORKDIR}" | tail -n1)
 if [ "$required_bytes" -gt "$available_bytes" ]; then
     echo
