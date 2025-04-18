@@ -25,12 +25,15 @@ if [ $# -eq 0 ]; then
 fi
 
 install_package() {
-    local package_file
+    local package_file="tmp.deb"
     local package_name
+    local package_url
     local do_download=true
 
     # Handle full path to .deb file
-    if [[ "${1}" == *.deb ]]; then
+    if [[ "${1}" == https://* ]]; then
+        package_url="${1}"
+    elif [[ "${1}" == *.deb ]]; then
         package_file="${1}"
         do_download=false
         if [[ ! -f "${package_file}" ]]; then
@@ -40,45 +43,46 @@ install_package() {
         package_name=$(dpkg-deb -f "${package_file}" Package)
         echo "Installing '${package_name}' from '${package_file}'..."
     else
-        package_file="tmp.deb"
         package_name="${1}"
     fi
 
     # Check if already installed globally
     if dpkg -s "${package_name}" >/dev/null 2>&1; then
-        echo "Package '${package_name}' is already installed globally. Skipping."
         return 0
     fi
 
     # Check if already installed locally
     touch installed.lst
     if grep -q "^${package_name}$" installed.lst; then
-        echo "Package '${package_name}' is already installed locally. Skipping."
         return 0
     fi
 
     if [[ "${do_download}" == true ]]; then
-        # Extract the filename from the package information
-        local filename
-        filename=$(apt-cache show "${package_name}" | grep "^Filename:" | head -n1 | awk '{print $2}')
+        if [[ -z "${package_url+x}" ]]; then
+            # Extract the filename from the package information
+            local filename
+            filename=$(apt-cache show "${package_name}" | grep "^Filename:" | head -n1 | awk '{print $2}')
 
-        # Check if filename was found
-        if [ -z "$filename" ]; then
-            echo "Error: Filename not found for package '$PACKAGE'" >&2
-            return 1
+            # Check if filename was found
+            if [ -z "$filename" ]; then
+                echo "Error: Filename not found for package '$PACKAGE'" >&2
+                return 1
+            fi
+
+            # Construct the download URL
+            BASEURL=$(apt-cache policy "${package_name}" | grep 'http' | head -n1 | awk '{print $2}')
+            local download_url
+            download_url="${BASEURL}/${filename}"
         fi
-
-        # Construct the download URL
-        BASEURL=$(apt-cache policy "${package_name}" | grep 'http' | head -n1 | awk '{print $2}')
-        local download_url
-        download_url="${BASEURL}/${filename}"
-
         echo "Installing '${package_name}' from '${download_url}'..."
 
         # Download DEB
         if ! wget -q "${download_url}" -O "${package_file}"; then
             echo "Error: Failed to download package '${package_name}' from URL '${download_url}'" >&2
             return 1
+        fi
+        if [[ -z "${package_name+x}" ]]; then
+            package_name=$(dpkg-deb -f "${package_file}" Package)
         fi
     fi
 
