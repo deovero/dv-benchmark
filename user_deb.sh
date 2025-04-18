@@ -20,60 +20,77 @@ DISTRIB_ID="$( lsb_release --id --short 2>/dev/null )"
 
 # Check if a package name is provided as an argument
 if [ $# -eq 0 ]; then
-    echo "Usage: $0 <package_name> [package_name...]" >&2
+    echo "Usage: $0 <package_name|/path/to/package.deb> [package_name...]" >&2
     exit 1
 fi
 
 install_package() {
     local PACKAGE="$1"
-    
+    local package_name="${PACKAGE}"
+    local package_file="tmp.deb"
+
+    # Handle full path to .deb file
+    if [[ "${PACKAGE}" == /* ]]; then
+        package_file="${PACKAGE}"
+        if [[ ! -f "${package_file}" ]]; then
+            echo "Error: File '${package_file}' not found" >&2
+            return 1
+        fi
+        package_name=$(dpkg-deb -f "${package_file}" Package)
+        echo "Installing '${package_name}' from '${package_file}'..."
+    fi
+
     # Check if already installed globally
-    if dpkg -s "$PACKAGE" >/dev/null 2>&1; then
-        echo "Package '$PACKAGE' is already installed globally. Skipping."
+    if dpkg -s "${package_name}" >/dev/null 2>&1; then
+        echo "Package '${package_name}' is already installed globally. Skipping."
         return 0
     fi
 
     # Check if already installed locally
     touch installed.lst
-    if grep -q "^${PACKAGE}$" installed.lst; then
-        echo "Package '$PACKAGE' is already installed locally. Skipping."
+    if grep -q "^${package_name}$" installed.lst; then
+        echo "Package '${package_name}' is already installed locally. Skipping."
         return 0
     fi
 
-    # Extract the filename from the package information
-    local filename
-    filename=$(apt-cache show "$PACKAGE" | grep "^Filename:" | head -n1 | awk '{print $2}')
+    if [[ "${PACKAGE}" != /* ]]; then
+        # Extract the filename from the package information
+        local filename
+        filename=$(apt-cache show "$PACKAGE" | grep "^Filename:" | head -n1 | awk '{print $2}')
 
-    # Check if filename was found
-    if [ -z "$filename" ]; then
-        echo "Error: Filename not found for package '$PACKAGE'" >&2
-        return 1
-    fi
+        # Check if filename was found
+        if [ -z "$filename" ]; then
+            echo "Error: Filename not found for package '$PACKAGE'" >&2
+            return 1
+        fi
 
-    # Construct the download URL
-    BASEURL=$(apt-cache policy "$PACKAGE" | grep 'http' | head -n1 | awk '{print $2}')
-    local download_url
-    download_url="${BASEURL}/${filename}"
+        # Construct the download URL
+        BASEURL=$(apt-cache policy "$PACKAGE" | grep 'http' | head -n1 | awk '{print $2}')
+        local download_url
+        download_url="${BASEURL}/${filename}"
 
-    echo "Installing '${PACKAGE}' from '${download_url}'..."
-    
-    # Download and extract DEB
-    if ! wget -q "$download_url" -O tmp.deb; then
-        echo "Error: Failed to download package '$PACKAGE'" >&2
-        return 1
+        echo "Installing '${PACKAGE}' from '${download_url}'..."
+
+        # Download and extract DEB
+        if ! wget -q "$download_url" -O "${package_file}"; then
+            echo "Error: Failed to download package '$PACKAGE'" >&2
+            return 1
+        fi
     fi
 
     rm -rf unpack
-    if ! dpkg -x tmp.deb unpack; then
+    if ! dpkg -x "${package_file}" unpack; then
         echo "Error: Failed to extract package '$PACKAGE'" >&2
-        rm -f tmp.deb
+        if [[ "${PACKAGE}" != /* ]]; then
+            rm -f tmp.deb
+        fi
         return 1
     fi
 
     cp -a unpack/* .
     rm -rf unpack tmp.deb
 
-    echo "${PACKAGE}" >> installed.lst
+    echo "${package_name}" >> installed.lst
     echo "Successfully installed '${PACKAGE}'"
 
     # Install dependencies

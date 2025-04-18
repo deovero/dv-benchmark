@@ -18,7 +18,11 @@ cd "${WORKDIR}"
 echo
 echo "==== Installation ====="
 "${SCRIPT_DIR}/install.sh" util-linux grep gawk bc
-"${SCRIPT_DIR}/install.sh" iozone3 || "${SCRIPT_DIR}/install.sh" iozone
+if lsb_release -c | grep -q "bookworm"; then
+
+else
+    "${SCRIPT_DIR}/install.sh" iozone3
+fi
 
 export LD_LIBRARY_PATH="${WORKDIR}/usr/lib/x86_64-linux-gnu:${WORKDIR}/usr/lib/x86_64-linux-gnu/ceph:${WORKDIR}/lib/x86_64-linux-gnu"
 export PATH="${WORKDIR}/usr/bin:${WORKDIR}/usr/local/bin:/usr/local/bin:/usr/bin:/bin"
