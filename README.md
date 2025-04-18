@@ -7,5 +7,6 @@ mkdir -p ~/tmp
 cd ~/tmp
 git clone https://github.com/dv-benchmark/dv-benchmark.git
 cd dv-benchmark
-./disk-io.sh
+./fio.sh
+./sysbench.sh
 ```

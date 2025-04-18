@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Script to test disk IO performance using 'fio'
+# Script to test disk IO performance using 'iozone'
 #
 
 # Set shell options
@@ -39,9 +39,9 @@ echo
 # Print test parameters
 echo
 echo "Test Parameters:"
-echo "- File: $TEST_FILE"
-echo "- Size: $FILE_SIZE"
-echo "- Block Size: $BLOCK_SIZE"
+echo "- File: ${TEST_FILE}"
+echo "- Size: ${FILE_SIZE}"
+echo "- Block Size: ${BLOCK_SIZE}"
 
 # Check available space
 required_bytes=$(numfmt --from=iec "$FILE_SIZE")
@@ -56,6 +56,7 @@ fi
 
 # Function to run FIO test
 run_iozone_test() {
+    echo
     IOZONE_RESULT=$(
       iozone \
         -i0 \
