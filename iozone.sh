@@ -25,7 +25,7 @@ export PATH="${WORKDIR}/usr/bin:${WORKDIR}/usr/local/bin:/usr/local/bin:/usr/bin
 # Set test file path
 TEST_FILE="${TEST_FILE:-${WORKDIR}/fio-test.dat}"
 # Set test file size
-FILE_SIZE="${FILE_SIZE:-20g}"
+FILE_SIZE="${FILE_SIZE:-20G}"
 # Set block size in Kbytes (4k is common for random IO)
 BLOCK_SIZE="${BLOCK_SIZE:-4}"
 # -------------------
