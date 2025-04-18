@@ -42,8 +42,4 @@ else
     }
 fi
 
-date >> "${WORKDIR}/installed.date" || {
-    echo "Warning: Failed to update installed.date" >&2
-}
-
 echo "Installation done."
