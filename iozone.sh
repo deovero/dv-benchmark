@@ -39,7 +39,6 @@ echo
 # Print test parameters
 echo
 echo "==== Test Parameters ===="
-echo "- File: ${TEST_FILE}"
 echo "- Size: ${FILE_SIZE}"
 echo "- Block Size: ${BLOCK_SIZE}"
 echo "- Threads: ${THREADS}"
