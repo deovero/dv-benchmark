@@ -19,7 +19,7 @@ echo
 echo "==== Installation ====="
 "${SCRIPT_DIR}/install.sh" util-linux grep gawk bc
 if lsb_release -c | grep -q "bookworm"; then
-    "${SCRIPT_DIR}/install_deb_url.sh" 'http://ftp.debian.org/debian/pool/non-free/i/iozone3/iozone3_489-1_amd64.deb'
+    "${SCRIPT_DIR}/install.sh" 'http://ftp.debian.org/debian/pool/non-free/i/iozone3/iozone3_489-1_amd64.deb'
 else
     "${SCRIPT_DIR}/install.sh" iozone3
 fi
@@ -97,11 +97,12 @@ run_iozone_test() {
     local regex_write='Children see throughput for\s*[0-9]+\s+initial writers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
     local regex_rand_read='Children see throughput for\s*[0-9]+\s+random readers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
     local regex_rand_write='Children see throughput for\s*[0-9]+\s+random writers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
-
-    local result_write=$(extract_result "${IOZONE_RESULT}" "${regex_write}")
-    local result_rand_read=$(extract_result "${IOZONE_RESULT}" "${regex_rand_read}")
-    local result_rand_write=$(extract_result "${IOZONE_RESULT}" "${regex_rand_write}")
-
+    local result_write
+    local result_rand_read
+    local result_rand_write
+    result_write=$(extract_result "${IOZONE_RESULT}" "${regex_write}")
+    result_rand_read=$(extract_result "${IOZONE_RESULT}" "${regex_rand_read}")
+    result_rand_write=$(extract_result "${IOZONE_RESULT}" "${regex_rand_write}")
     echo
     printf "\033[0;33m%-25s %s MiB/sec\033[0m\n" "iozone Sequential Write:" "$(kb_to_mib "${result_write}")"
     printf "\033[0;33m%-25s %s MiB/sec\033[0m\n" "iozone Random Read:" "$(kb_to_mib "${result_rand_read}")"
