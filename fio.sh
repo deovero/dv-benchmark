@@ -70,8 +70,6 @@ run_fio_test() {
     local metric_path="$3"
     local result
 
-    echo "Running $show_name test..."
-
     result=$(
       fio \
           --name="$rw_type" \
