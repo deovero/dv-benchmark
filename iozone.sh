@@ -58,7 +58,7 @@ fi
 # Convert KB/s to MiB/s with 2 decimal places
 kb_to_mib() {
     local kb_value="$1"
-    echo "scale=2; ${kb_value}/1024" | bc -l
+    echo "scale=0; ${kb_value}/1024" | bc -l
 }
 
 # Extract result using regex
@@ -82,6 +82,12 @@ run_iozone_test() {
         -r "${BLOCK_SIZE}" \
         | tee /dev/tty
     )
+
+    if ! grep -q 'O_DIRECT feature enabled' <<< "${IOZONE_RESULT}"; then
+        echo
+        echo "ERROR: O_DIRECT feature not enabled, results would be inaccurate." >&2
+        return 1
+    fi
 
     local regex_write='Children see throughput for\s*[0-9]+\s+initial writers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
     local regex_rand_read='Children see throughput for\s*[0-9]+\s+random readers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
