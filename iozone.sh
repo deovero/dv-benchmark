@@ -40,9 +40,9 @@ echo
 # Print test parameters
 echo
 echo "==== Test Parameters ===="
-echo "- Size: ${FILE_SIZE}"
-echo "- Block Size: ${BLOCK_SIZE}"
 echo "- Threads: ${THREADS}"
+echo "- Size per thread: ${FILE_SIZE}"
+echo "- Block Size: ${BLOCK_SIZE}"
 
 # Check available space
 required_bytes=$( echo "$(numfmt --from=iec "$FILE_SIZE")*${THREADS}" | bc )
