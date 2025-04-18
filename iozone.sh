@@ -69,16 +69,19 @@ run_iozone_test() {
         | tee /dev/tty \
         | grep -P "^\s+\d+\s+${BLOCK_SIZE}\s+\d+\s+\d+\s+\d+\s+\d+"
     )
-    SEQ_WRITE=$(echo -e "${IOZONE_RESULT}" | awk '{printf "%.2f", $3/(1024)}')
-    RAND_READ=$(echo -e "${IOZONE_RESULT}" | awk '{printf "%.2f", $5/(1024)}')
-    RAND_WRITE=$(echo -e "${IOZONE_RESULT}" | awk '{printf "%.2f", $6/(1024)}')
-    echo
-    printf "\033[0;33mSequential Write:  %s MiB/s\033[0m\n" "${SEQ_WRITE}"
-    printf "\033[0;33mRandom Read:       %s MiB/s\033[0m\n" "${RAND_READ}"
-    printf "\033[0;33mRandom Write:      %s MiB/s\033[0m\n" "${RAND_WRITE}"
+    regex='Children see throughput for\s*[0-9]+\s+initial writers\s*=\s*([0-9]+.*)$'
+    RESULT=$(echo -e "${IOZONE_RESULT}" | grep -oP "${regex}" | tail -n1 | sed -nE "s/${regex}/\1/p")
+    printf "\033[0;33mSequential Write:  %s\033[0m\n" "${RESULT}"
+    regex='Children see throughput for\s*[0-9]+\s+random readers\s*=\s*([0-9]+.*)$'
+    RESULT=$(echo -e "${IOZONE_RESULT}" | grep -oP "${regex}" | tail -n1 | sed -nE "s/${regex}/\1/p")
+    printf "\033[0;33mRandom Write:      %s\033[0m\n" "${RESULT}"
+    regex='Children see throughput for\s*[0-9]+\s+random writers\s*=\s*([0-9]+.*)$'
+    RESULT=$(echo -e "${IOZONE_RESULT}" | grep -oP "${regex}" | tail -n1 | sed -nE "s/${regex}/\1/p")
+    printf "\033[0;33mRandom Write:      %s\033[0m\n" "${RESULT}"
 }
 
 # Run tests
+echo "==== Running Tests ===="
 run_iozone_test
 
 # Cleanup to be sure
