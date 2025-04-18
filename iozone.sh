@@ -19,7 +19,7 @@ echo
 echo "==== Installation ====="
 "${SCRIPT_DIR}/install.sh" util-linux grep gawk bc
 if lsb_release -c | grep -q "bookworm"; then
-
+    "${SCRIPT_DIR}/install_deb_url.sh" 'http://ftp.debian.org/debian/pool/non-free/i/iozone3/iozone3_489-1_amd64.deb'
 else
     "${SCRIPT_DIR}/install.sh" iozone3
 fi
