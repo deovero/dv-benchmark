@@ -54,7 +54,20 @@ if [ "$required_bytes" -gt "$available_bytes" ]; then
     exit 1
 fi
 
-# Function to run FIO test
+# Convert KB/s to MiB/s with 2 decimal places
+kb_to_mib() {
+    local kb_value="$1"
+    printf "%.2f" "$(echo "scale=2; ${kb_value}/1024" | bc -l)"
+}
+
+# Extract result using regex
+extract_result() {
+    local result_text="$1"
+    local regex="$2"
+    echo -e "${result_text}" | grep -oP "${regex}" | tail -n1 | sed -nE "s/${regex}/\1/p"
+}
+
+# Function to run IOzone test
 run_iozone_test() {
     echo
     IOZONE_RESULT=$(
@@ -68,21 +81,27 @@ run_iozone_test() {
         -r "${BLOCK_SIZE}" \
         | tee /dev/tty
     )
-    regex='Children see throughput for\s*[0-9]+\s+initial writers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
-    RESULT=$(echo -e "${IOZONE_RESULT}" | grep -oP "${regex}" | tail -n1 | sed -nE "s/${regex}/\1/p")
-    printf "\033[0;33mSequential Write:  %.02f MiB/sec\033[0m\n" "$(echo "${RESULT}/1024" | bc -l)"
-    regex='Children see throughput for\s*[0-9]+\s+random readers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
-    RESULT=$(echo -e "${IOZONE_RESULT}" | grep -oP "${regex}" | tail -n1 | sed -nE "s/${regex}/\1/p")
-    printf "\033[0;33mRandom Write:      %.02f MiB/sec\033[0m\n" "$(echo "${RESULT}/1024" | bc -l)"
-    regex='Children see throughput for\s*[0-9]+\s+random writers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
-    RESULT=$(echo -e "${IOZONE_RESULT}" | grep -oP "${regex}" | tail -n1 | sed -nE "s/${regex}/\1/p")
-    printf "\033[0;33mRandom Write:      %.02f MiB/sec\033[0m\n" "$(echo "${RESULT}/1024" | bc -l)"
+
+    local regex_write='Children see throughput for\s*[0-9]+\s+initial writers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
+    local regex_rand_read='Children see throughput for\s*[0-9]+\s+random readers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
+    local regex_rand_write='Children see throughput for\s*[0-9]+\s+random writers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
+
+    local result_write=$(extract_result "${IOZONE_RESULT}" "${regex_write}")
+    local result_rand_read=$(extract_result "${IOZONE_RESULT}" "${regex_rand_read}")
+    local result_rand_write=$(extract_result "${IOZONE_RESULT}" "${regex_rand_write}")
+
+    printf "\033[0;33mSequential Write:  %s MiB/sec\033[0m\n" "$(kb_to_mib "${result_write}")"
+    printf "\033[0;33mRandom Read:       %s MiB/sec\033[0m\n" "$(kb_to_mib "${result_rand_read}")"
+    printf "\033[0;33mRandom Write:      %s MiB/sec\033[0m\n" "$(kb_to_mib "${result_rand_write}")"
 }
 
 # Run tests
 echo
 echo "==== Running Tests ===="
 run_iozone_test
+
+# Cleanup temporary files
+find "${WORKDIR}" -type f -name "iozone*" -delete
 
 # Finish
 echo
