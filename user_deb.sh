@@ -31,7 +31,7 @@ install_package() {
     local do_download=true
 
     # Handle full path to .deb file
-    if [[ "${1}" == https://* ]]; then
+    if [[ "${1}" == https://* ]] || [[ "${1}" == http://* ]]; then
         package_url="${1}"
     elif [[ "${1}" == *.deb ]]; then
         package_file="${1}"
