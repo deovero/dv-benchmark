@@ -57,7 +57,7 @@ fi
 # Convert KB/s to MiB/s with 2 decimal places
 kb_to_mib() {
     local kb_value="$1"
-    printf "%.2f" "$(echo "scale=2; ${kb_value}/1024" | bc -l)"
+    echo "scale=2; ${kb_value}/1024" | bc -l
 }
 
 # Extract result using regex
@@ -101,7 +101,7 @@ echo "==== Running Tests ===="
 run_iozone_test
 
 # Cleanup temporary files
-find "${WORKDIR}" -type f -name "iozone*" -delete
+find "${WORKDIR}" -type f -name "iozone.*" -delete
 
 # Finish
 echo
