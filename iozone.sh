@@ -73,9 +73,9 @@ run_iozone_test() {
     RAND_READ=$(echo -e "${IOZONE_RESULT}" | awk '{printf "%.2f", $5/(1024)}')
     RAND_WRITE=$(echo -e "${IOZONE_RESULT}" | awk '{printf "%.2f", $6/(1024)}')
     echo
-    echo "Sequential Write: ${SEQ_WRITE} MiB/s"
-    echo "Random Read:      ${RAND_READ} MiB/s"
-    echo "Random Write:     ${RAND_WRITE} MiB/s"
+    printf "\033[0;33mSequential Write:  %s MiB/s\033[0m\n" "${SEQ_WRITE}"
+    printf "\033[0;33mRandom Read:       %s MiB/s\033[0m\n" "${RAND_READ}"
+    printf "\033[0;33mRandom Write:      %s MiB/s\033[0m\n" "${RAND_WRITE}"
 }
 
 # Run tests

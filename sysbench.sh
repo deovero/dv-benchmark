@@ -15,7 +15,7 @@ WORKDIR="${SCRIPT_DIR}/tmp"
 mkdir -p "${WORKDIR}"
 cd "${WORKDIR}"
 
-echo "Calling install.sh..."
+echo "==== Installation ====="
 "${SCRIPT_DIR}/install.sh" sysbench util-linux grep gawk
 
 export LD_LIBRARY_PATH="${WORKDIR}/usr/lib/x86_64-linux-gnu:${WORKDIR}/usr/lib/x86_64-linux-gnu/ceph:${WORKDIR}/lib/x86_64-linux-gnu"
