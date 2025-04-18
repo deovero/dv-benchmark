@@ -17,7 +17,7 @@ cd "${WORKDIR}" || exit 1
 
 echo
 echo "==== Installation ====="
-"${SCRIPT_DIR}/install.sh" fio sysbench jq util-linux grep gawk || exit 1
+"${SCRIPT_DIR}/install.sh" fio jq util-linux grep gawk || exit 1
 
 export LD_LIBRARY_PATH="${WORKDIR}/usr/lib/x86_64-linux-gnu:${WORKDIR}/usr/lib/x86_64-linux-gnu/ceph:${WORKDIR}/lib/x86_64-linux-gnu"
 export PATH="${WORKDIR}/usr/bin:${WORKDIR}/usr/local/bin:/usr/local/bin:/usr/bin:/bin"
