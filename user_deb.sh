@@ -46,6 +46,7 @@ install_package() {
     local package_name
     local package_url
     local do_download=true
+    local dependencies
 
     # Handle full path to .deb file
     if [[ "${1}" == https://* ]] || [[ "${1}" == http://* ]]; then
@@ -114,6 +115,9 @@ install_package() {
     if [[ "${do_download}" == true ]]; then
         rm -f "${package_file}"
     fi
+    dependencies="$(
+      apt-get -s install "$( readlink -f "${package_file}" )" | grep -P '^Inst' | grep -Fv "Inst ${package_name} " | awk '{ print $2 }'
+    )"
 
     echo "${package_name}" >> installed.lst
     echo "Successfully installed '${package_name}'"
@@ -123,7 +127,7 @@ install_package() {
         if [[ -n "$DEPENDS" ]]; then
             install_package "${DEPENDS}"
         fi
-    done < <(apt-get -s install "$PACKAGE" | grep -P '^Inst' | grep -Fv "Inst ${package_name} " | awk '{ print $2 }' )
+    done <<< "${dependencies}"
 }
 
 # Process each package
