@@ -15,6 +15,7 @@ WORKDIR="${SCRIPT_DIR}/tmp"
 mkdir -p "${WORKDIR}"
 cd "${WORKDIR}"
 
+echo
 echo "==== Installation ====="
 "${SCRIPT_DIR}/install.sh" iozone3 util-linux grep gawk bc
 
@@ -90,6 +91,7 @@ run_iozone_test() {
     local result_rand_read=$(extract_result "${IOZONE_RESULT}" "${regex_rand_read}")
     local result_rand_write=$(extract_result "${IOZONE_RESULT}" "${regex_rand_write}")
 
+    echo
     printf "\033[0;33mSequential Write:  %s MiB/sec\033[0m\n" "$(kb_to_mib "${result_write}")"
     printf "\033[0;33mRandom Read:       %s MiB/sec\033[0m\n" "$(kb_to_mib "${result_rand_read}")"
     printf "\033[0;33mRandom Write:      %s MiB/sec\033[0m\n" "$(kb_to_mib "${result_rand_write}")"

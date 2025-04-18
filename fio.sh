@@ -7,17 +7,17 @@
 set +o xtrace -o errexit -o nounset -o pipefail +o history
 IFS=$'\n'
 
-# Get script directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Get script directory (more portable version)
+SCRIPT_DIR="$(CDPATH="" cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
 # Prepare working directory
 WORKDIR="${SCRIPT_DIR}/tmp"
 mkdir -p "${WORKDIR}"
-cd "${WORKDIR}"
+cd "${WORKDIR}" || exit 1
 
 echo
 echo "==== Installation ====="
-"${SCRIPT_DIR}/install.sh" fio sysbench jq util-linux grep gawk
+"${SCRIPT_DIR}/install.sh" fio sysbench jq util-linux grep gawk || exit 1
 
 export LD_LIBRARY_PATH="${WORKDIR}/usr/lib/x86_64-linux-gnu:${WORKDIR}/usr/lib/x86_64-linux-gnu/ceph:${WORKDIR}/lib/x86_64-linux-gnu"
 export PATH="${WORKDIR}/usr/bin:${WORKDIR}/usr/local/bin:/usr/local/bin:/usr/bin:/bin"
@@ -40,7 +40,7 @@ IODEPTH="${IODEPTH:-16}"
 # List block devices
 echo
 echo "==== Block Devices ===="
-lsblk -o NAME,FSTYPE,MOUNTPOINT,SIZE,MODEL
+lsblk -o NAME,FSTYPE,MOUNTPOINT,SIZE,MODEL || true
 
 # Print test parameters
 echo
@@ -53,8 +53,8 @@ echo "- Jobs: $NUM_JOBS"
 echo "- IO Depth: $IODEPTH"
 
 # Check available space
-required_bytes=$(numfmt --from=iec "$FILE_SIZE")
-available_bytes=$(df -B1 --output=avail "${WORKDIR}" | tail -n1)
+required_bytes=$(numfmt --from=iec "$FILE_SIZE") || exit 1
+available_bytes=$(df -B1 --output=avail "${WORKDIR}" | tail -n1) || exit 1
 if [ "$required_bytes" -gt "$available_bytes" ]; then
     echo
     echo "Error: Not enough space available in ${WORKDIR}"
@@ -68,8 +68,11 @@ run_fio_test() {
     local show_name="$1"
     local rw_type="$2"
     local metric_path="$3"
+    local result
 
-    FIO_OUTPUT=$(
+    echo "Running $show_name test..."
+
+    result=$(
       fio \
           --name="$rw_type" \
           --filename="$TEST_FILE" \
@@ -86,22 +89,24 @@ run_fio_test() {
           --norandommap \
           --randrepeat=0 \
           --time_based \
-          --output-format=json | jq -r "${metric_path} | round | \"\(.) MiB/s\""
-    )
-    printf "\033[0;33m%-17s %s\033[0m\n" "$show_name:" "${FIO_OUTPUT}"
+          --output-format=json 2>/dev/null | jq -r "${metric_path} | round | \"\(.) MiB/s\""
+    ) || {
+        echo "Error: FIO test failed" >&2
+        return 1
+    }
+
+    printf "\033[0;33m%-18s %s\033[0m\n" "$show_name:" "${result}"
 }
+
+# Trap for cleanup
+trap 'rm -f "$TEST_FILE"' EXIT
 
 echo
 echo "==== Running Tests ===="
 run_fio_test  'Sequential Write'  'write'      '.jobs[0].write.bw/1024'
-#run_fio_test  'Sequential Read'   'read'       '.jobs[0].read.bw/1024'
 run_fio_test  'Random Read'       'randread'   '.jobs[0].read.bw/1024'
 run_fio_test  'Random Write'      'randwrite'  '.jobs[0].write.bw/1024'
 
-# Cleanup
-rm -f "$TEST_FILE"
-
-# Finish
 echo
 echo "Done."
 exit 0

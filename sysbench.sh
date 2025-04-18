@@ -15,6 +15,7 @@ WORKDIR="${SCRIPT_DIR}/tmp"
 mkdir -p "${WORKDIR}"
 cd "${WORKDIR}"
 
+echo
 echo "==== Installation ====="
 "${SCRIPT_DIR}/install.sh" sysbench util-linux grep gawk
 
