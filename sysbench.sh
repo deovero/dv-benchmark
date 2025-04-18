@@ -28,16 +28,16 @@ TIME="${TIME:-60}"
 # -------------------
 
 echo
-echo "==== CPU info:"
+echo "==== CPU info ===="
 lscpu
 
 echo
-echo "==== Memory info:"
+echo "==== Memory info ===="
 lsmem
 
 # Print test parameters
 echo
-echo "==== Test Parameters:"
+echo "==== Test Parameters ===="
 echo "- Threads: ${THREADS}"
 echo "- Time:    ${TIME} seconds"
 
@@ -48,7 +48,7 @@ run_sysbench_test() {
     local regex="$3"
     local unit="$4"
     echo
-    echo -n "==== Testing $show_name: "
+    echo "==== Testing $show_name ===="
     SYSBENCH_RESULT=$(
       sysbench \
         "${test_name}" \
@@ -66,7 +66,7 @@ run_sysbench_test() {
 
 # Run tests
 run_sysbench_test 'cpu' 'CPU' 'events per second:\s*([0-9]+\.?[0-9]*)' 'events per second'
-run_sysbench_test 'memory' 'Memory' 'transferred \(([^)]+)\)' ''
+run_sysbench_test 'memory' 'Memory' 'transferred \(([^\)]+)\)' ''
 
 # Finish
 echo
