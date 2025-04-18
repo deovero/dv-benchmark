@@ -28,6 +28,8 @@ TEST_FILE="${TEST_FILE:-${WORKDIR}/fio-test.dat}"
 FILE_SIZE="${FILE_SIZE:-20G}"
 # Set block size in Kbytes (4k is common for random IO)
 BLOCK_SIZE="${BLOCK_SIZE:-4}"
+# Set number of threads
+THREADS="${THREADS:-4}"
 # -------------------
 
 # List block devices
@@ -42,6 +44,7 @@ echo "==== Test Parameters ===="
 echo "- File: ${TEST_FILE}"
 echo "- Size: ${FILE_SIZE}"
 echo "- Block Size: ${BLOCK_SIZE}"
+echo "- Threads: ${THREADS}"
 
 # Check available space
 required_bytes=$(numfmt --from=iec "$FILE_SIZE")
@@ -63,6 +66,7 @@ run_iozone_test() {
         -i2 \
         -I \
         -e \
+        -t "${THREADS}" \
         -s "${FILE_SIZE}" \
         -r "${BLOCK_SIZE}" \
         -f "$TEST_FILE" \
