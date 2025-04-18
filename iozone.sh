@@ -22,8 +22,6 @@ export LD_LIBRARY_PATH="${WORKDIR}/usr/lib/x86_64-linux-gnu:${WORKDIR}/usr/lib/x
 export PATH="${WORKDIR}/usr/bin:${WORKDIR}/usr/local/bin:/usr/local/bin:/usr/bin:/bin"
 
 # --- Configuration ---
-# Set test file path
-TEST_FILE="${TEST_FILE:-${WORKDIR}/fio-test.dat}"
 # Set test file size
 FILE_SIZE="${FILE_SIZE:-20G}"
 # Set block size in Kbytes (4k is common for random IO)
@@ -69,7 +67,6 @@ run_iozone_test() {
         -t "${THREADS}" \
         -s "${FILE_SIZE}" \
         -r "${BLOCK_SIZE}" \
-        -f "$TEST_FILE" \
         | tee /dev/tty \
         | grep -P "^\s+\d+\s+${BLOCK_SIZE}\s+\d+\s+\d+\s+\d+\s+\d+"
     )
@@ -87,9 +84,6 @@ run_iozone_test() {
 # Run tests
 echo "==== Running Tests ===="
 run_iozone_test
-
-# Cleanup to be sure
-rm -f "$TEST_FILE"
 
 # Finish
 echo
