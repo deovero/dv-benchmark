@@ -70,13 +70,13 @@ run_iozone_test() {
     )
     regex='Children see throughput for\s*[0-9]+\s+initial writers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
     RESULT=$(echo -e "${IOZONE_RESULT}" | grep -oP "${regex}" | tail -n1 | sed -nE "s/${regex}/\1/p")
-    printf "\033[0;33mSequential Write:  %s MiB/sec\033[0m\n" "$(echo "${RESULT}/1024" | bc -l)"
+    printf "\033[0;33mSequential Write:  %.02f MiB/sec\033[0m\n" "$(echo "${RESULT}/1024" | bc -l)"
     regex='Children see throughput for\s*[0-9]+\s+random readers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
     RESULT=$(echo -e "${IOZONE_RESULT}" | grep -oP "${regex}" | tail -n1 | sed -nE "s/${regex}/\1/p")
-    printf "\033[0;33mRandom Write:      %s MiB/sec\033[0m\n" "$(echo "${RESULT}/1024" | bc -l)"
+    printf "\033[0;33mRandom Write:      %.02f MiB/sec\033[0m\n" "$(echo "${RESULT}/1024" | bc -l)"
     regex='Children see throughput for\s*[0-9]+\s+random writers\s*=\s*([0-9]+\.?[0-9]*)\s*kB\/sec'
     RESULT=$(echo -e "${IOZONE_RESULT}" | grep -oP "${regex}" | tail -n1 | sed -nE "s/${regex}/\1/p")
-    printf "\033[0;33mRandom Write:      %s MiB/sec\033[0m\n" "$(echo "${RESULT}/1024" | bc -l)"
+    printf "\033[0;33mRandom Write:      %.02f MiB/sec\033[0m\n" "$(echo "${RESULT}/1024" | bc -l)"
 }
 
 # Run tests
