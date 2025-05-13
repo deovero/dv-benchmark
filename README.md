@@ -5,7 +5,7 @@ Hardware Benchmarking Tools by [DeoVero](https://deovero.com).
 ```shell
 mkdir -p ~/tmp
 cd ~/tmp
-git clone https://github.com/dv-benchmark/dv-benchmark.git
+git clone https://github.com/deovero/dv-benchmark.git
 cd dv-benchmark
 ./iozone.sh
 ./fio.sh
