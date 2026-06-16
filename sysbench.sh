@@ -30,11 +30,19 @@ RUN_TIME="${RUN_TIME:-60}"
 
 echo
 echo "==== CPU info ===="
-lscpu
+if command -v 'lscpu' >/dev/null 2>&1; then
+    lscpu
+elif [ -f /proc/cpuinfo ]; then
+    awk -v RS='' 'END { print }' /proc/cpuinfo
+fi
 
 echo
 echo "==== Memory info ===="
-lsmem
+if command -v 'lsmem' >/dev/null 2>&1; then
+    lsmem
+else
+    free -h
+fi
 
 # Print test parameters
 echo
