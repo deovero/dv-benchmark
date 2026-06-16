@@ -40,9 +40,8 @@ echo
 echo "==== Memory info ===="
 if command -v 'lsmem' >/dev/null 2>&1; then
     lsmem
-else
-    free -h
 fi
+free -h
 
 # Print test parameters
 echo
